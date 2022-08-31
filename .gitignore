@@ -1,0 +1,12 @@
+share/datasets/.ipynb_checkpoints/
+share/datasets/custom/
+share/datasets/example_dataset.zip
+share/datasets/open/
+share/pkgs/CNRPark+EXT_Trained_Models_AlexNet.zip
+share/pkgs/VanishingPoint/
+share/pkgs/caffemodel2pytorch/
+share/pkgs/deep-parking_cpu/
+share/pkgs/deep-parking_gpu/
+share/pkgs/parking_lot_occupancy_detection/
+share/pkgs/yolov5/
+
