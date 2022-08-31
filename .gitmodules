@@ -1,3 +1,0 @@
-[submodule "share/pkgs/deep-parking"]
-	path = share/pkgs/deep-parking
-	url = https://github.com/hoo223/parking_detection.git
