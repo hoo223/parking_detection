@@ -8,7 +8,7 @@ apt install -y python3.8
 update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
 
 
-#pip3 install torch torchvision
+#pip3 install torch torchvision torchsummary
 #apt install -y libgl1-mesa-glx libglib2.0-0
 #pip3 install opencv-python jupyter matplotlib
 
