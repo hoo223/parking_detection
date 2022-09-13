@@ -5,7 +5,8 @@ sed -i 's/kr.archive.ubuntu.com/mirror.kakao.com/g' /etc/apt/sources.list
 apt update
 
 # Python 3.8
-apt install -y curl python3.8 
+apt install -y curl git gedit 
+apt install -y python3.8 
 update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
 
 # pip
