@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     # Hyperparameter 설정
     BATCH_SIZE = 1
-    EPOCHS = 1
+    EPOCHS = 10
     LEARNING_RATE = 0.0005
     OPTIM = 'SGD' # Adam
     MODEL = 'ResNet101' # AlexNet ResNet101 ResNet34 ResNet18 RexNet
@@ -182,11 +182,16 @@ if __name__ == '__main__':
         os.makedirs(SAVE_PATH)
     if not os.path.isdir(LOG_PATH):
         os.makedirs(LOG_PATH)
-        
+    
+    log_file = open(LOG_PATH+"/log_{}_BS{}_{}_LR{}_EP{}.txt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS), 'w')
+    log_file.writelines("Dataset List")
     for dataset in trainset_txt.keys():
-        print("------------------    For ", dataset, " dataset    ------------------")
+        log_file.writelines("- {}\n".format(dataset))
         
-        log_file = open(LOG_PATH+"/log_{}_BS{}_{}_LR{}_EP{}_DS-{}.txt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset), 'w')
+
+    for dataset in trainset_txt.keys():
+        print("\n------------------    For ", dataset, " dataset    ------------------\n")
+        BEST_MODEL_PATH = SAVE_PATH+"/{}_BS{}_{}_LR{}_EP{}_DS-{}.pt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
 
         model = copy.deepcopy(init_model)
         model = model.cuda()
@@ -197,6 +202,9 @@ if __name__ == '__main__':
             optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE, momentum=0.9, weight_decay=0.0005)
         criterion = nn.CrossEntropyLoss()
         
+        if os.path.exists(BEST_MODEL_PATH):
+            continue
+
         best_acc = 0
         best_ep = 0
         
@@ -207,15 +215,15 @@ if __name__ == '__main__':
                 best_acc = test_accuracy
                 best_model = copy.deepcopy(model)
                 best_ep = Epoch
-                msg = "Best Model!"
+                msg = "Best Model!\n"
                 print(msg)
                 log_file.writelines(msg)
             msg = "\nEPOCH: {}], \tTest Loss: {:.4f}, \tTest Accuracy: {:.2f} %\n".format(Epoch, test_loss, test_accuracy)
             print(msg)
             log_file.writelines(msg)
 
-        torch.save(best_model.state_dict(), SAVE_PATH+"/{}_BS{}_{}_LR{}_EP{}_DS-{}.pt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset))
-        msg = "------------------    Best Model at Epoch {} Saved    ------------------".format(best_ep)
+        torch.save(best_model.state_dict(), BEST_MODEL_PATH)
+        msg = "\n------------------    Best Model at Epoch {} Saved    ------------------\n".format(best_ep)
         print(msg)
         log_file.writelines(msg)
 
@@ -248,12 +256,12 @@ if __name__ == '__main__':
         
         test_loss, test_accuracy = evaluate(trained_model, test_loader[dataset])
         total_loss += test_accuracy
-        msg = '{} - loss: {}, acc: {}'.format(dataset, test_loss, test_accuracy)
+        msg = '{} - loss: {}, acc: {}\n'.format(dataset, test_loss, test_accuracy)
         print(msg)
         log_file.writelines(msg)
         
     total_loss /= len(trainset_txt)
-    msg = "average accuracy: ", total_loss
+    msg = "average accuracy: {}".foramt(total_loss)
     print(msg)
     log_file.writelines(msg)
 
