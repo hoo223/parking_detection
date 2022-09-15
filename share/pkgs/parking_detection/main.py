@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os, copy
 from PIL import Image
+import argparse
 
 import torch
 import torch.nn as nn
@@ -11,6 +12,14 @@ from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
 import torchvision.models as models
 import rexnetv1
+
+parser = argparse.ArgumentParser("Set parking lot occupancy detection project parameters", add_help=False)
+parser.add_argument('--batch_size', type=int, default=1)
+parser.add_argument('--epochs', type=int, default=10)
+parser.add_argument('--model', type=str, default='AlexNet')
+parser.add_argument('--learning_rate', type=float, default='0.0005')
+parser.add_argument('--optim', type=str, default='Adam')
+args = parser.parse_args()
 
 class Data:
     def __init__(self, img_path, txt_path, transforms = None):
@@ -84,11 +93,11 @@ if __name__ == '__main__':
     print('Using PyTorch version:', torch.__version__, ' Device:', DEVICE)
 
     # Hyperparameter 설정
-    BATCH_SIZE = 1
-    EPOCHS = 10
-    LEARNING_RATE = 0.0005
-    OPTIM = 'SGD' # Adam
-    MODEL = 'ResNet101' # AlexNet ResNet101 ResNet50 ResNet34 ResNet18 RexNet
+    BATCH_SIZE = args.batch_size
+    EPOCHS = args.epochs
+    LEARNING_RATE = args.learning_rate
+    OPTIM = args.optim # SGD Adam
+    MODEL = args.model # AlexNet ResNet101 ResNet50 ResNet34 ResNet18 RexNet
 
     ''' 이미지 데이터 불러오기(Train set, Test set)'''
     # preprocessing 정의
