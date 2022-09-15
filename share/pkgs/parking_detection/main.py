@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os, copy
 from PIL import Image
 import argparse
+from datetime import datetime
 
 import torch
 import torch.nn as nn
@@ -19,6 +20,7 @@ parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--model', type=str, default='AlexNet')
 parser.add_argument('--learning_rate', type=float, default='0.0005')
 parser.add_argument('--optim', type=str, default='Adam')
+parser.add_argument('--pretrained', type=bool, default=False)
 args = parser.parse_args()
 
 class Data:
@@ -57,10 +59,11 @@ def train(model, train_loader, optimizer, log_interval):
         optimizer.step() # 파라미터 업데이트
         
         if batch_idx % log_interval == 0:
-            print("Train Epoch: {} [{}/{}({:.0f}%)]\tTrain Loss: {:.6f}".format(
+            print("Train Epoch: {} [{}/{}({:.0f}%)]\tTrain Loss: {:.6f} ({})".format(
                   Epoch, batch_idx * len(image),
                   len(train_loader.dataset), 100. * batch_idx / len(train_loader),
-                  loss.item()))
+                  loss.item(),
+                  datetime.now()))
 
 ''' 학습되는 과정 속에서 검증 데이터에 대한 모델 성능을 확인하는 함수 정의 '''
 def evaluate(model, test_loader):
@@ -98,6 +101,7 @@ if __name__ == '__main__':
     LEARNING_RATE = args.learning_rate
     OPTIM = args.optim # SGD Adam
     MODEL = args.model # AlexNet ResNet101 ResNet50 ResNet34 ResNet18 RexNet
+    PRETRAINED = args.pretrained
 
     ''' 이미지 데이터 불러오기(Train set, Test set)'''
     # preprocessing 정의
@@ -162,19 +166,28 @@ if __name__ == '__main__':
 
     # 모델 불러오기
     if MODEL == 'AlexNet':
-        model = models.alexnet(pretrained=False)
+        model = models.alexnet(pretrained=PRETRAINED)
         model._modules['classifier']._modules['6'] = nn.Linear(4096, 2, bias=True)
     elif MODEL == 'ResNet18':
-        model = models.resnet18(num_classes=2, pretrained=False)
+        model = models.resnet18(pretrained=PRETRAINED)
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, 2)
     elif MODEL == 'ResNet34':
-        model = models.resnet34(num_classes=2, pretrained=False)
+        model = models.resnet34(pretrained=PRETRAINED)
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, 2)
     elif MODEL == 'ResNet50':
-        model = models.resnet50(num_classes=2, pretrained=False)
+        model = models.resnet50(pretrained=PRETRAINED)
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, 2)
     elif MODEL == 'ResNet101':
-        model = models.resnet101(num_classes=2, pretrained=False)
+        model = models.resnet101(pretrained=PRETRAINED)
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, 2)
     elif MODEL == 'RexNet': # BATCH_SIZE 1은 에러남
         model = rexnetv1.ReXNetV1(width_mult=1.0).cuda()
-        print(model(torch.randn(BATCH_SIZE, 3, 224, 224).cuda())) 
+        if PRETRAINED:
+            model.load_state_dict(torch.load('./saved_model/rexnetv1_1.0.pth'))
             
     init_model = copy.deepcopy(model)
     print(init_model)
@@ -197,7 +210,11 @@ if __name__ == '__main__':
         print("\n------------------    For ", dataset, " dataset    ------------------\n")
         
         # 기존에 훈련된 모델이 있는지 확인
-        BEST_MODEL_PATH = SAVE_PATH+"/{}_BS{}_{}_LR{}_EP{}_DS-{}.pt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+        if PRETRAINED:
+            MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_DS-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+        else:
+            MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_DS-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+        BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
         if os.path.exists(BEST_MODEL_PATH):
             continue
 
@@ -210,7 +227,7 @@ if __name__ == '__main__':
             optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE, momentum=0.9, weight_decay=0.0005)
         criterion = nn.CrossEntropyLoss()
 
-        train_log = open(LOG_PATH+"/train_log_{}_BS{}_{}_LR{}_EP{}_DS-{}.txt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset), 'w')
+        train_log = open(LOG_PATH+"/train_log_" + MODEL_NAME + ".txt", 'w')
 
         best_acc = 0
         best_ep = 0
@@ -237,7 +254,7 @@ if __name__ == '__main__':
         train_log.close()
 
     ''' 훈련된 모델 확인하기 '''
-    test_log = open(LOG_PATH+"/test_log_{}_BS{}_{}_LR{}_EP{}.txt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS), 'w')
+    test_log = open(LOG_PATH+"/test_log_" + MODEL_NAME + ".txt", 'w')
     test_log.writelines("Dataset List\n")
     for dataset in trainset_txt.keys():
         test_log.writelines("- {} train: {}, test: {} \n".format(dataset, trainset_txt[dataset], testset_txt[dataset]))
@@ -248,7 +265,11 @@ if __name__ == '__main__':
 
     total_loss = 0
     for dataset in trainset_txt.keys():
-        model_path = SAVE_PATH+"/{}_BS{}_{}_LR{}_EP{}_DS-{}.pt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+        if PRETRAINED:
+            MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_DS-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+        else:
+            MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_DS-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+        BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
         
         if MODEL == 'AlexNet':
             trained_model = models.alexnet(pretrained=False)
@@ -265,7 +286,7 @@ if __name__ == '__main__':
             trained_model = rexnetv1.ReXNetV1(width_mult=1.0).cuda()
 
         trained_model = trained_model.cuda()
-        trained_model.load_state_dict(torch.load(model_path))
+        trained_model.load_state_dict(torch.load(BEST_MODEL_PATH))
         criterion = nn.CrossEntropyLoss()
         
         test_loss, test_accuracy = evaluate(trained_model, test_loader[dataset])
