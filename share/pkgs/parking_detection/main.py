@@ -1,4 +1,4 @@
-''' 1. Module Import '''
+''' Module Import '''
 import numpy as np
 import matplotlib.pyplot as plt
 import os, copy
@@ -33,7 +33,7 @@ class Data:
     def __len__(self):
         return len(self.label_list)
 
-''' 6. 불러온 특정 모델에 대해 학습을 진행하며 학습 데이터에 대한 모델 성능을 확인하는 함수 정의 '''
+''' 불러온 특정 모델에 대해 학습을 진행하며 학습 데이터에 대한 모델 성능을 확인하는 함수 정의 '''
 def train(model, train_loader, optimizer, log_interval):
     model.train() # 모델을 학습 상태로 지정
     for batch_idx, (image, label) in enumerate(train_loader):
@@ -53,7 +53,7 @@ def train(model, train_loader, optimizer, log_interval):
                   len(train_loader.dataset), 100. * batch_idx / len(train_loader),
                   loss.item()))
 
-''' 7. 학습되는 과정 속에서 검증 데이터에 대한 모델 성능을 확인하는 함수 정의 '''
+''' 학습되는 과정 속에서 검증 데이터에 대한 모델 성능을 확인하는 함수 정의 '''
 def evaluate(model, test_loader):
     model.eval() # 모델을 평가 상태로 지정
     test_loss = 0
@@ -75,7 +75,7 @@ def evaluate(model, test_loader):
     return test_loss, test_accuracy
 
 if __name__ == '__main__':
-    ''' 2. 딥러닝 모델을 설계할 때 활요하는 장비 확인 '''
+    ''' 딥러닝 모델을 설계할 때 활요하는 장비 확인 '''
     if torch.cuda.is_available():
         DEVICE = torch.device('cuda')
     else:
@@ -88,9 +88,9 @@ if __name__ == '__main__':
     EPOCHS = 10
     LEARNING_RATE = 0.0005
     OPTIM = 'SGD' # Adam
-    MODEL = 'ResNet101' # AlexNet ResNet101 ResNet34 ResNet18 RexNet
+    MODEL = 'ResNet101' # AlexNet ResNet101 ResNet50 ResNet34 ResNet18 RexNet
 
-    ''' 3. 이미지 데이터 불러오기(Train set, Test set 분리하기)'''
+    ''' 이미지 데이터 불러오기(Train set, Test set)'''
     # preprocessing 정의
     data_transforms = {
         'train': transforms.Compose([
@@ -135,13 +135,13 @@ if __name__ == '__main__':
         train_loader['fold'+str(i+1)] = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
         test_loader['fold'+str(i+1)] = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
 
-    ''' 4. 데이터 확인하기 (1) '''
+    ''' 데이터 확인하기 (1) '''
     for (X_train, y_train) in train_loader['fold1']:
         print('X_train:', X_train.size(), 'type:', X_train.type())
         print('y_train:', len(y_train), 'type:', type(y_train))
         break
 
-    # ''' 5. 데이터 확인하기 (2) '''
+    # ''' 데이터 확인하기 (2) '''
     # pltsize = 1
     # plt.figure(figsize=(BATCH_SIZE * pltsize, pltsize))
 
@@ -151,6 +151,7 @@ if __name__ == '__main__':
     #     plt.imshow(np.transpose(X_train[i], (1, 2, 0)))
     #     plt.title('Class: ' + str(y_train[i]))
 
+    # 모델 불러오기
     if MODEL == 'AlexNet':
         model = models.alexnet(pretrained=False)
         model._modules['classifier']._modules['6'] = nn.Linear(4096, 2, bias=True)
@@ -182,16 +183,14 @@ if __name__ == '__main__':
         os.makedirs(SAVE_PATH)
     if not os.path.isdir(LOG_PATH):
         os.makedirs(LOG_PATH)
-    
-    log_file = open(LOG_PATH+"/log_{}_BS{}_{}_LR{}_EP{}.txt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS), 'w')
-    log_file.writelines("Dataset List")
-    for dataset in trainset_txt.keys():
-        log_file.writelines("- {}\n".format(dataset))
-        
 
     for dataset in trainset_txt.keys():
         print("\n------------------    For ", dataset, " dataset    ------------------\n")
+        
+        # 기존에 훈련된 모델이 있는지 확인
         BEST_MODEL_PATH = SAVE_PATH+"/{}_BS{}_{}_LR{}_EP{}_DS-{}.pt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+        if os.path.exists(BEST_MODEL_PATH):
+            continue
 
         model = copy.deepcopy(init_model)
         model = model.cuda()
@@ -201,9 +200,8 @@ if __name__ == '__main__':
         elif OPTIM == 'SGD':
             optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE, momentum=0.9, weight_decay=0.0005)
         criterion = nn.CrossEntropyLoss()
-        
-        if os.path.exists(BEST_MODEL_PATH):
-            continue
+
+        train_log = open(LOG_PATH+"/train_log_{}_BS{}_{}_LR{}_EP{}_DS-{}.txt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset), 'w')
 
         best_acc = 0
         best_ep = 0
@@ -217,21 +215,27 @@ if __name__ == '__main__':
                 best_ep = Epoch
                 msg = "Best Model!\n"
                 print(msg)
-                log_file.writelines(msg)
+                train_log.writelines(msg)
             msg = "\nEPOCH: {}], \tTest Loss: {:.4f}, \tTest Accuracy: {:.2f} %\n".format(Epoch, test_loss, test_accuracy)
             print(msg)
-            log_file.writelines(msg)
+            train_log.writelines(msg)
 
         torch.save(best_model.state_dict(), BEST_MODEL_PATH)
         msg = "\n------------------    Best Model at Epoch {} Saved    ------------------\n".format(best_ep)
         print(msg)
-        log_file.writelines(msg)
+        train_log.writelines(msg)
 
+        train_log.close()
 
     ''' 훈련된 모델 확인하기 '''
+    test_log = open(LOG_PATH+"/test_log_{}_BS{}_{}_LR{}_EP{}.txt".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS), 'w')
+    test_log.writelines("Dataset List\n")
+    for dataset in trainset_txt.keys():
+        test_log.writelines("- {} train: {}, test: {} \n".format(dataset, trainset_txt[dataset], testset_txt[dataset]))
+
     msg = "\n*--------------------- Test Result ---------------------*\n"
     print(msg)
-    log_file.writelines(msg)
+    test_log.writelines(msg)
 
     total_loss = 0
     for dataset in trainset_txt.keys():
@@ -253,16 +257,17 @@ if __name__ == '__main__':
 
         trained_model = trained_model.cuda()
         trained_model.load_state_dict(torch.load(model_path))
+        criterion = nn.CrossEntropyLoss()
         
         test_loss, test_accuracy = evaluate(trained_model, test_loader[dataset])
         total_loss += test_accuracy
         msg = '{} - loss: {}, acc: {}\n'.format(dataset, test_loss, test_accuracy)
         print(msg)
-        log_file.writelines(msg)
+        test_log.writelines(msg)
         
     total_loss /= len(trainset_txt)
-    msg = "average accuracy: {}".foramt(total_loss)
+    msg = "average accuracy: {}".format(total_loss)
     print(msg)
-    log_file.writelines(msg)
+    test_log.writelines(msg)
 
-    log_file.close()
+    test_log.close()
