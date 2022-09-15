@@ -9,4 +9,5 @@ share/pkgs/deep-parking_cpu/
 share/pkgs/deep-parking_gpu/
 share/pkgs/parking_lot_occupancy_detection/
 share/pkgs/yolov5/
-
+share/pkgs/parking_detection/saved_model
+share/pkgs/pytorch_tutorial
