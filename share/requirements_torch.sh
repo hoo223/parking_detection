@@ -13,6 +13,7 @@ update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
 apt install -y python3-distutils
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3.8 get-pip.py
+rm -f get-pip.py
 
 # Pytorch
 pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113 # https://powerofsummary.tistory.com/189
