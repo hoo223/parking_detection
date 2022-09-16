@@ -296,6 +296,8 @@ if __name__ == '__main__':
 
     total_loss = 0
     for dataset in trainset_txt.keys():
+        tr = trainset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
+        vd = validset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
         if PRETRAINED:
             MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
         else:
