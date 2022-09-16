@@ -21,6 +21,7 @@ parser.add_argument('--model', type=str, default='AlexNet')
 parser.add_argument('--learning_rate', type=float, default='0.0005')
 parser.add_argument('--optim', type=str, default='Adam')
 parser.add_argument('--pretrained', type=bool, default=False)
+parser.add_argument('--num_class', type=int, default=2)
 args = parser.parse_args()
 
 class Data:
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     OPTIM = args.optim # SGD Adam
     MODEL = args.model # AlexNet ResNet101 ResNet50 ResNet34 ResNet18 RexNet
     PRETRAINED = args.pretrained
-    print(PRETRAINED)
+    NUM_CLASS = args.num_class
 
     ''' 이미지 데이터 불러오기(Train set, Test set)'''
     # preprocessing 정의
@@ -177,23 +178,23 @@ if __name__ == '__main__':
     # 모델 불러오기
     if MODEL == 'AlexNet':
         model = models.alexnet(pretrained=PRETRAINED)
-        model._modules['classifier']._modules['6'] = nn.Linear(4096, 2, bias=True)
+        model._modules['classifier']._modules['6'] = nn.Linear(4096, NUM_CLASS, bias=True)
     elif MODEL == 'ResNet18':
         model = models.resnet18(pretrained=PRETRAINED)
         num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 2)
+        model.fc = nn.Linear(num_ftrs, NUM_CLASS)
     elif MODEL == 'ResNet34':
         model = models.resnet34(pretrained=PRETRAINED)
         num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 2)
+        model.fc = nn.Linear(num_ftrs, NUM_CLASS)
     elif MODEL == 'ResNet50':
         model = models.resnet50(pretrained=PRETRAINED)
         num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 2)
+        model.fc = nn.Linear(num_ftrs, NUM_CLASS)
     elif MODEL == 'ResNet101':
         model = models.resnet101(pretrained=PRETRAINED)
         num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 2)
+        model.fc = nn.Linear(num_ftrs, NUM_CLASS)
     elif MODEL == 'RexNet': # BATCH_SIZE 1은 에러남
         model = rexnetv1.ReXNetV1(width_mult=1.0).cuda()
         if PRETRAINED:
@@ -309,17 +310,17 @@ if __name__ == '__main__':
         
         if MODEL == 'AlexNet':
             trained_model = models.alexnet(pretrained=False)
-            trained_model._modules['classifier']._modules['6'] = nn.Linear(4096, 2, bias=True)
+            trained_model._modules['classifier']._modules['6'] = nn.Linear(4096, NUM_CLASS, bias=True)
         elif MODEL == 'ResNet18':
-            trained_model = models.resnet18(num_classes=2, pretrained=False)
+            trained_model = models.resnet18(num_classes=NUM_CLASS, pretrained=False)
         elif MODEL == 'ResNet34':
-            trained_model = models.resnet34(num_classes=2, pretrained=False)
+            trained_model = models.resnet34(num_classes=NUM_CLASS, pretrained=False)
         elif MODEL == 'ResNet50':
-            trained_model = models.resnet50(num_classes=2, pretrained=False)
+            trained_model = models.resnet50(num_classes=NUM_CLASS, pretrained=False)
         elif MODEL == 'ResNet101':
-            trained_model = models.resnet101(num_classes=2, pretrained=False)
+            trained_model = models.resnet101(num_classes=NUM_CLASS, pretrained=False)
         elif MODEL == 'RexNet': # BATCH_SIZE 1은 에러남
-            trained_model = rexnetv1.ReXNetV1(width_mult=1.0).cuda()
+            trained_model = rexnetv1.ReXNetV1(classes=NUM_CLASS, width_mult=1.0).cuda()
 
         trained_model = trained_model.cuda()
         trained_model.load_state_dict(torch.load(BEST_MODEL_PATH))
