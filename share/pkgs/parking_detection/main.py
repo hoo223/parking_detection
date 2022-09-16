@@ -102,6 +102,7 @@ if __name__ == '__main__':
     OPTIM = args.optim # SGD Adam
     MODEL = args.model # AlexNet ResNet101 ResNet50 ResNet34 ResNet18 RexNet
     PRETRAINED = args.pretrained
+    print(PRETRAINED)
 
     ''' 이미지 데이터 불러오기(Train set, Test set)'''
     # preprocessing 정의
@@ -127,6 +128,12 @@ if __name__ == '__main__':
                     'fold4': './splits/Custom_Paper/fold1235_all.txt',
                     'fold5': './splits/Custom_Paper/fold1234_all.txt'
                 }
+    validset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
+                'fold2': './splits/Custom_Paper/fold1345_all.txt',
+                'fold3': './splits/Custom_Paper/fold1245_all.txt',
+                'fold4': './splits/Custom_Paper/fold1235_all.txt',
+                'fold5': './splits/Custom_Paper/fold1234_all.txt'
+            }
     testset_txt = {'fold1': './splits/Custom_Paper/fold1_all.txt',
                 'fold2': './splits/Custom_Paper/fold2_all.txt',
                 'fold3': './splits/Custom_Paper/fold3_all.txt',
@@ -135,6 +142,7 @@ if __name__ == '__main__':
                 }
 
     train_loader = {}
+    valid_loader = {}
     test_loader = {}
 
     if MODEL == 'RexNet':
@@ -142,11 +150,13 @@ if __name__ == '__main__':
     else:
         drop_last = False
 
-    for i in range(len(trainset_txt)):
-        train_dataset = Data(img_path, trainset_txt['fold'+str(i+1)], data_transforms['train'])
-        test_dataset = Data(img_path, testset_txt['fold'+str(i+1)], data_transforms['val'])
-        train_loader['fold'+str(i+1)] = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
-        test_loader['fold'+str(i+1)] = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
+    for key in list(trainset_txt.keys()):
+        train_dataset = Data(img_path, trainset_txt[key], data_transforms['train'])
+        valid_dataset = Data(img_path, validset_txt[key], data_transforms['val'])
+        test_dataset = Data(img_path, testset_txt[key], data_transforms['val'])
+        train_loader[key] = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
+        valid_loader[key] = DataLoader(valid_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
+        test_loader[key] = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
 
     ''' 데이터 확인하기 (1) '''
     for (X_train, y_train) in train_loader['fold1']:
@@ -208,24 +218,36 @@ if __name__ == '__main__':
 
     for dataset in trainset_txt.keys():
         print("\n------------------    For ", dataset, " dataset    ------------------\n")
-        
-        # 기존에 훈련된 모델이 있는지 확인
-        if PRETRAINED:
-            MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_DS-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
-        else:
-            MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_DS-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
-        BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
-        if os.path.exists(BEST_MODEL_PATH):
-            continue
+        tr = trainset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
+        vd = validset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
 
+        # Best model 경로 정의
+        if PRETRAINED:
+            MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
+        else:
+            MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
+        BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
+        print(BEST_MODEL_PATH)
+        
+        # 모델 초기화 
         model = copy.deepcopy(init_model)
         model = model.cuda()
         
+        # Optimizer 및 loss 정의
         if OPTIM == 'Adam':
             optimizer = torch.optim.Adam(model.parameters(), lr = LEARNING_RATE)
         elif OPTIM == 'SGD':
             optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE, momentum=0.9, weight_decay=0.0005)
         criterion = nn.CrossEntropyLoss()
+
+        # 사전에 훈련된 모델이 존재하면 테스트만 진행하고 다음으로 넘어감 
+        if os.path.exists(BEST_MODEL_PATH):
+            print("Trained model already exists!\n")
+            model.load_state_dict(torch.load(BEST_MODEL_PATH))
+            test_loss, test_accuracy = evaluate(model, test_loader[dataset])
+            msg = 'Test loss: {}, Test acc: {}\n'.format(test_loss, test_accuracy)
+            print(msg)
+            continue
 
         train_log = open(LOG_PATH+"/train_log_" + MODEL_NAME + ".txt", 'w')
 
@@ -234,15 +256,15 @@ if __name__ == '__main__':
         
         for Epoch in range(1, EPOCHS + 1):
             train(model, train_loader[dataset], optimizer, log_interval = 200)
-            test_loss, test_accuracy = evaluate(model, test_loader[dataset])
-            if test_accuracy > best_acc:
-                best_acc = test_accuracy
+            valid_loss, valid_accuracy = evaluate(model, valid_loader[dataset])
+            if valid_accuracy > best_acc:
+                best_acc = valid_accuracy
                 best_model = copy.deepcopy(model)
                 best_ep = Epoch
                 msg = "Best Model!\n"
                 print(msg)
                 train_log.writelines(msg)
-            msg = "\nEPOCH: {}], \tTest Loss: {:.4f}, \tTest Accuracy: {:.2f} %\n".format(Epoch, test_loss, test_accuracy)
+            msg = "\nEPOCH: {}], \tValidation Loss: {:.4f}, \tValidation Accuracy: {:.2f} %\n".format(Epoch, valid_loss, valid_accuracy)
             print(msg)
             train_log.writelines(msg)
 
@@ -251,10 +273,19 @@ if __name__ == '__main__':
         print(msg)
         train_log.writelines(msg)
 
+        test_loss, test_accuracy = evaluate(model, test_loader[dataset])
+        msg = '\nTest loss: {}, Test acc: {}\n'.format(test_loss, test_accuracy)
+        print(msg)
+        train_log.writelines(msg)
+
         train_log.close()
 
     ''' 훈련된 모델 확인하기 '''
-    test_log = open(LOG_PATH+"/test_log_" + MODEL_NAME + ".txt", 'w')
+    if PRETRAINED:
+        TEST_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, datetime.now())
+    else:
+        TEST_NAME = "{}_BS{}_{}_LR{}_EP{}_{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, datetime.now())
+    test_log = open(LOG_PATH+"/test_log_" + TEST_NAME + ".txt", 'w')
     test_log.writelines("Dataset List\n")
     for dataset in trainset_txt.keys():
         test_log.writelines("- {} train: {}, test: {} \n".format(dataset, trainset_txt[dataset], testset_txt[dataset]))
@@ -266,9 +297,9 @@ if __name__ == '__main__':
     total_loss = 0
     for dataset in trainset_txt.keys():
         if PRETRAINED:
-            MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_DS-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+            MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
         else:
-            MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_DS-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, dataset)
+            MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
         BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
         
         if MODEL == 'AlexNet':
