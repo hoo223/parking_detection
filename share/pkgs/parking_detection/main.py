@@ -197,7 +197,7 @@ if __name__ == '__main__':
     elif MODEL == 'RexNet': # BATCH_SIZE 1은 에러남
         model = rexnetv1.ReXNetV1(width_mult=1.0).cuda()
         if PRETRAINED:
-            model.load_state_dict(torch.load('./saved_model/rexnetv1_1.0.pth'))
+            model.load_state_dict(torch.load('./rexnetv1_1.0.pth'))
             
     init_model = copy.deepcopy(model)
     print(init_model)
