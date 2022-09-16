@@ -210,11 +210,14 @@ if __name__ == '__main__':
 
     ''' 모델 훈련'''
     SAVE_PATH = './saved_model'
-    LOG_PATH = './logs'
+    TRAIN_LOG_PATH = './logs/train'
+    TEST_LOG_PATH = './logs/test'
     if not os.path.isdir(SAVE_PATH):
-        os.makedirs(SAVE_PATH)
-    if not os.path.isdir(LOG_PATH):
-        os.makedirs(LOG_PATH)
+        os.makedirs(SAVE_PATH, exist_ok=True)
+    if not os.path.isdir(TRAIN_LOG_PATH):
+        os.makedirs(TRAIN_LOG_PATH, exist_ok=True)
+    if not os.path.isdir(TEST_LOG_PATH):
+        os.makedirs(TEST_LOG_PATH, exist_ok=True)
 
     for dataset in trainset_txt.keys():
         print("\n------------------    For ", dataset, " dataset    ------------------\n")
@@ -249,7 +252,7 @@ if __name__ == '__main__':
             print(msg)
             continue
 
-        train_log = open(LOG_PATH+"/train_log_" + MODEL_NAME + ".txt", 'w')
+        train_log = open(TRAIN_LOG_PATH+"/train_log_" + MODEL_NAME + ".txt", 'w')
 
         best_acc = 0
         best_ep = 0
@@ -285,7 +288,7 @@ if __name__ == '__main__':
         TEST_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, datetime.now())
     else:
         TEST_NAME = "{}_BS{}_{}_LR{}_EP{}_{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, datetime.now())
-    test_log = open(LOG_PATH+"/test_log_" + TEST_NAME + ".txt", 'w')
+    test_log = open(TEST_LOG_PATH+"/test_log_" + TEST_NAME + ".txt", 'w')
     test_log.writelines("Dataset List\n")
     for dataset in trainset_txt.keys():
         test_log.writelines("- {} train: {}, test: {} \n".format(dataset, trainset_txt[dataset], testset_txt[dataset]))

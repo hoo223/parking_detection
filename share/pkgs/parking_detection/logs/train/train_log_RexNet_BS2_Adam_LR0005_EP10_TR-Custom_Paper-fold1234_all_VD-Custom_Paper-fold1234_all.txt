@@ -1,0 +1,29 @@
+Best Model!
+
+EPOCH: 1], 	Validation Loss: 0.1531, 	Validation Accuracy: 89.56 %
+
+EPOCH: 2], 	Validation Loss: 0.1372, 	Validation Accuracy: 87.79 %
+Best Model!
+
+EPOCH: 3], 	Validation Loss: 0.0861, 	Validation Accuracy: 93.73 %
+Best Model!
+
+EPOCH: 4], 	Validation Loss: 0.1110, 	Validation Accuracy: 94.27 %
+Best Model!
+
+EPOCH: 5], 	Validation Loss: 0.0728, 	Validation Accuracy: 96.09 %
+Best Model!
+
+EPOCH: 6], 	Validation Loss: 0.0899, 	Validation Accuracy: 97.54 %
+
+EPOCH: 7], 	Validation Loss: 0.1296, 	Validation Accuracy: 92.61 %
+
+EPOCH: 8], 	Validation Loss: 0.0864, 	Validation Accuracy: 95.98 %
+
+EPOCH: 9], 	Validation Loss: 0.1520, 	Validation Accuracy: 88.75 %
+
+EPOCH: 10], 	Validation Loss: 0.2436, 	Validation Accuracy: 72.04 %
+
+------------------    Best Model at Epoch 6 Saved    ------------------
+
+Test loss: 0.28683750075385944, Test acc: 67.43697478991596
