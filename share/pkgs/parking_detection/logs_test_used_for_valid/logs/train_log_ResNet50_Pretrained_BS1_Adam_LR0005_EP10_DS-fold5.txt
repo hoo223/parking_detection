@@ -1,0 +1,25 @@
+Best Model!
+
+EPOCH: 1], 	Test Loss: 0.5977, 	Test Accuracy: 64.92 %
+
+EPOCH: 2], 	Test Loss: 1.3033, 	Test Accuracy: 45.59 %
+Best Model!
+
+EPOCH: 3], 	Test Loss: 0.6377, 	Test Accuracy: 66.39 %
+Best Model!
+
+EPOCH: 4], 	Test Loss: 2.2504, 	Test Accuracy: 71.43 %
+
+EPOCH: 5], 	Test Loss: 3.9299, 	Test Accuracy: 41.18 %
+
+EPOCH: 6], 	Test Loss: 0.6429, 	Test Accuracy: 66.18 %
+
+EPOCH: 7], 	Test Loss: 2.8104, 	Test Accuracy: 46.43 %
+
+EPOCH: 8], 	Test Loss: 0.9676, 	Test Accuracy: 63.03 %
+
+EPOCH: 9], 	Test Loss: 1.7204, 	Test Accuracy: 57.35 %
+
+EPOCH: 10], 	Test Loss: 3.3478, 	Test Accuracy: 44.33 %
+
+------------------    Best Model at Epoch 4 Saved    ------------------

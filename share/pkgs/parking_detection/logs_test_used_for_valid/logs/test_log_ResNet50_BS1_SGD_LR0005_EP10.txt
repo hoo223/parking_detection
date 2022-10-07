@@ -1,0 +1,14 @@
+Dataset List
+- fold1 train: ./splits/Custom_Paper/fold2345_all.txt, test: ./splits/Custom_Paper/fold1_all.txt 
+- fold2 train: ./splits/Custom_Paper/fold1345_all.txt, test: ./splits/Custom_Paper/fold2_all.txt 
+- fold3 train: ./splits/Custom_Paper/fold1245_all.txt, test: ./splits/Custom_Paper/fold3_all.txt 
+- fold4 train: ./splits/Custom_Paper/fold1235_all.txt, test: ./splits/Custom_Paper/fold4_all.txt 
+- fold5 train: ./splits/Custom_Paper/fold1234_all.txt, test: ./splits/Custom_Paper/fold5_all.txt 
+
+*--------------------- Test Result ---------------------*
+fold1 - loss: 9.350825333620355, acc: 57.081545064377686
+fold2 - loss: 26.415331230707434, acc: 52.915766738660906
+fold3 - loss: 2.453581335564453, acc: 56.98924731182796
+fold4 - loss: 13.70136004391, acc: 62.579281183932345
+fold5 - loss: 8.546581186765254, acc: 48.109243697478995
+average accuracy: 55.53501679925559
