@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<annotations>
+  <version>1.1</version>
+  <meta>
+    <task>
+      <id>121</id>
+      <name>test</name>
+      <size>1</size>
+      <mode>annotation</mode>
+      <overlap>0</overlap>
+      <bugtracker></bugtracker>
+      <created>2022-08-31 14:37:11.414845+00:00</created>
+      <updated>2022-08-31 14:38:22.527231+00:00</updated>
+      <subset>default</subset>
+      <start_frame>0</start_frame>
+      <stop_frame>0</stop_frame>
+      <frame_filter></frame_filter>
+      <segments>
+        <segment>
+          <id>110</id>
+          <start>0</start>
+          <stop>0</stop>
+          <url>http://121.140.9.56:8080/?id=110</url>
+        </segment>
+      </segments>
+      <owner>
+        <username>blackcom</username>
+        <email>bsmoon@bluecoms.co.kr</email>
+      </owner>
+      <assignee></assignee>
+      <labels>
+        <label>
+          <name>있음</name>
+          <color>#fa0034</color>
+          <attributes>
+            <attribute>
+              <name>세부구획</name>
+              <mutable>False</mutable>
+              <input_type>select</input_type>
+              <default_value>일반형</default_value>
+              <values>일반형
+경형
+장애인전용
+여성우선주차장
+환경친화적 자동차 전용</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>없음</name>
+          <color>#12c74c</color>
+          <attributes>
+            <attribute>
+              <name>세부구획</name>
+              <mutable>False</mutable>
+              <input_type>select</input_type>
+              <default_value>일반형</default_value>
+              <values>일반형
+경형
+장애인전용
+여성우선주차장
+환경친화적 자동차 전용
+etc
+기타</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>장애물</name>
+          <color>#def005</color>
+          <attributes>
+            <attribute>
+              <name>장애물 종류</name>
+              <mutable>False</mutable>
+              <input_type>select</input_type>
+              <default_value>사람</default_value>
+              <values>사람
+이륜차
+기타</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>주차차량</name>
+          <color>#3d3df5</color>
+          <attributes>
+            <attribute>
+              <name>차량 모델</name>
+              <mutable>False</mutable>
+              <input_type>text</input_type>
+              <default_value></default_value>
+              <values></values>
+            </attribute>
+            <attribute>
+              <name>방향</name>
+              <mutable>False</mutable>
+              <input_type>select</input_type>
+              <default_value>전</default_value>
+              <values>전
+후
+좌
+우</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>번호판</name>
+          <color>#b83df5</color>
+          <attributes>
+            <attribute>
+              <name>번호정보</name>
+              <mutable>False</mutable>
+              <input_type>text</input_type>
+              <default_value></default_value>
+              <values></values>
+            </attribute>
+          </attributes>
+        </label>
+      </labels>
+    </task>
+    <dumped>2022-08-31 14:38:33.170966+00:00</dumped>
+  </meta>
+  <image id="0" name="VID_20220724_143757_00_008_2022-08-02_00-22-13_스크린샷.jpg" width="1920" height="1080">
+    <polyline label="있음" occluded="0" source="manual" points="1055.77,747.92;1387.67,720.37" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polyline>
+    <polyline label="있음" occluded="0" source="manual" points="731.39,756.69;1054.52,746.67" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polyline>
+    <polygon label="없음" occluded="0" source="manual" points="454.60,751.68;728.88,756.69;849.10,578.80;710.10,590.11" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polygon>
+  </image>
+</annotations>

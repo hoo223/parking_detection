@@ -1,0 +1,3 @@
+example_dataset/Occupied/VID_20220724_143757_00_008_2022-08-02_00-22-13_스크린샷_car1.jpg 1
+example_dataset/Occupied/VID_20220724_143757_00_008_2022-08-02_00-22-13_스크린샷_car2.jpg 1
+example_dataset/Empty/VID_20220724_143757_00_008_2022-08-02_00-22-13_스크린샷_empty1.jpg 0
