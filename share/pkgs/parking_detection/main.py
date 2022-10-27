@@ -1,5 +1,6 @@
 ''' Module Import '''
 import numpy as np
+import time
 import matplotlib.pyplot as plt
 import os, copy
 from PIL import Image
@@ -22,6 +23,7 @@ parser.add_argument('--learning_rate', type=float, default='0.0005')
 parser.add_argument('--optim', type=str, default='Adam')
 parser.add_argument('--pretrained', type=bool, default=False)
 parser.add_argument('--num_class', type=int, default=2)
+parser.add_argument('--test', type=bool, default=False)
 args = parser.parse_args()
 
 class Data:
@@ -67,13 +69,20 @@ def train(model, train_loader, optimizer, log_interval):
                   datetime.now()))
 
 ''' 학습되는 과정 속에서 검증 데이터에 대한 모델 성능을 확인하는 함수 정의 '''
-def evaluate(model, test_loader):
+def evaluate(model, test_loader, test=False):
     model.eval() # 모델을 평가 상태로 지정
     test_loss = 0
     correct = 0
+    total_time = 0
+    avg_time_per_image = 0
+    batch_cnt = 0
+    image_cnt = 0
+    incorrect_list = []
     
     with torch.no_grad(): # 평가하는 단계에서 gradient를 통해 파라미터 값이 업데이트되는 현상을 방지
         for image, label in test_loader:
+            batch_cnt += 1
+            start = time.time()
             label = list(map(int, label))
             label = torch.Tensor(label)
             image = image.to(DEVICE) # 기존 정의한 장비에 할당
@@ -81,11 +90,21 @@ def evaluate(model, test_loader):
             output = model(image) # Forward propagation
             test_loss += criterion(output, label.long()).item() # loss 누적
             prediction = output.max(1, keepdim = True)[1]
-            correct += prediction.eq(label.view_as(prediction)).sum().item() 
-            
+            result = prediction.eq(label.view_as(prediction))
+            correct += result.sum().item()
+            time_per_batch = time.time() - start
+            #print("time per {} image :{}".format(len(label), time_per_batch))
+            total_time += time_per_batch
+            incorrect_list += list(np.where(result.cpu().numpy()==False)[0]+1+image_cnt)
+            image_cnt += len(label)
+    
+    avg_time_per_image = total_time/float(image_cnt)
     test_loss /= len(test_loader.dataset) # 평균 loss 계산
     test_accuracy = 100. * correct / len(test_loader.dataset) # 정확도 계산
-    return test_loss, test_accuracy
+    if test:
+        return test_loss, test_accuracy, avg_time_per_image, incorrect_list
+    else:
+        return test_loss, test_accuracy
 
 if __name__ == '__main__':
     ''' 딥러닝 모델을 설계할 때 활요하는 장비 확인 '''
@@ -104,6 +123,7 @@ if __name__ == '__main__':
     MODEL = args.model # AlexNet ResNet101 ResNet50 ResNet34 ResNet18 RexNet
     PRETRAINED = args.pretrained
     NUM_CLASS = args.num_class
+    TEST_MODE = args.test
 
     ''' 이미지 데이터 불러오기(Train set, Test set)'''
     # preprocessing 정의
@@ -123,24 +143,50 @@ if __name__ == '__main__':
     }
 
     img_path = '/root/share/datasets/Bluecom'
-    trainset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
-                    'fold2': './splits/Custom_Paper/fold1345_all.txt',
-                    'fold3': './splits/Custom_Paper/fold1245_all.txt',
-                    'fold4': './splits/Custom_Paper/fold1235_all.txt',
-                    'fold5': './splits/Custom_Paper/fold1234_all.txt'
-                }
-    validset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
-                'fold2': './splits/Custom_Paper/fold1345_all.txt',
-                'fold3': './splits/Custom_Paper/fold1245_all.txt',
-                'fold4': './splits/Custom_Paper/fold1235_all.txt',
-                'fold5': './splits/Custom_Paper/fold1234_all.txt'
-            }
-    testset_txt = {'fold1': './splits/Custom_Paper/fold1_all.txt',
-                'fold2': './splits/Custom_Paper/fold2_all.txt',
-                'fold3': './splits/Custom_Paper/fold3_all.txt',
-                'fold4': './splits/Custom_Paper/fold4_all.txt',
-                'fold5': './splits/Custom_Paper/fold5_all.txt',
-                }
+    # trainset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
+    #                 'fold2': './splits/Custom_Paper/fold1345_all.txt',
+    #                 'fold3': './splits/Custom_Paper/fold1245_all.txt',
+    #                 'fold4': './splits/Custom_Paper/fold1235_all.txt',
+    #                 'fold5': './splits/Custom_Paper/fold1234_all.txt'
+    #             }
+    # validset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
+    #             'fold2': './splits/Custom_Paper/fold1345_all.txt',
+    #             'fold3': './splits/Custom_Paper/fold1245_all.txt',
+    #             'fold4': './splits/Custom_Paper/fold1235_all.txt',
+    #             'fold5': './splits/Custom_Paper/fold1234_all.txt'
+    #         }
+    # testset_txt = {'fold1': './splits/Custom_Paper/fold1_all.txt',
+    #             'fold2': './splits/Custom_Paper/fold2_all.txt',
+    #             'fold3': './splits/Custom_Paper/fold3_all.txt',
+    #             'fold4': './splits/Custom_Paper/fold4_all.txt',
+    #             'fold5': './splits/Custom_Paper/fold5_all.txt',
+    #             }
+
+    # trainset_txt = {'ex1': './splits/Custom_Paper/fold2345_all.txt',
+    #                 'ex2': './splits/Custom_Paper/fold1345_all.txt',
+    #                 'ex3': './splits/Custom_Paper/fold1245_all.txt',
+    #                 'ex4': './splits/Custom_Paper/fold1235_all.txt',
+    #                 'ex5': './splits/Custom_Paper/fold1234_all.txt'
+    #             }
+    # validset_txt = {'ex1': './splits/Custom_Paper/fold2345_all.txt',
+    #                 'ex2': './splits/Custom_Paper/fold1345_all.txt',
+    #                 'ex3': './splits/Custom_Paper/fold1245_all.txt',
+    #                 'ex4': './splits/Custom_Paper/fold1235_all.txt',
+    #                 'ex5': './splits/Custom_Paper/fold1234_all.txt'
+    #             }
+    # testset_txt = { 'ex1': './splits/Additional/additional.txt',
+    #                 'ex2': './splits/Additional/additional.txt',
+    #                 'ex3': './splits/Additional/additional.txt',
+    #                 'ex4': './splits/Additional/additional.txt',
+    #                 'ex5': './splits/Additional/additional.txt',
+    #             }  
+
+    trainset_txt = {#'ex1':'./splits/Custom_Paper/fold12345_all.txt',
+                    'ex2':'./splits/Custom_Paper/fold12345_all.txt'}
+    validset_txt = {#'ex1':'./splits/Custom_Paper/fold12345_all.txt',
+                    'ex2':'./splits/Additional/additional_overlap_removed.txt'}
+    testset_txt = {#'ex1':'./splits/Additional/additional_overlap_removed.txt',
+                   'ex2':'./splits/Additional/additional_overlap_removed.txt'}
 
     train_loader = {}
     valid_loader = {}
@@ -157,10 +203,10 @@ if __name__ == '__main__':
         test_dataset = Data(img_path, testset_txt[key], data_transforms['val'])
         train_loader[key] = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
         valid_loader[key] = DataLoader(valid_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
-        test_loader[key] = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=drop_last)
+        test_loader[key] = DataLoader(test_dataset, batch_size=2048, shuffle=False, drop_last=drop_last)
 
     ''' 데이터 확인하기 (1) '''
-    for (X_train, y_train) in train_loader['fold1']:
+    for (X_train, y_train) in test_loader['ex2']:
         print('X_train:', X_train.size(), 'type:', X_train.type())
         print('y_train:', len(y_train), 'type:', type(y_train))
         break
@@ -219,70 +265,71 @@ if __name__ == '__main__':
         os.makedirs(TRAIN_LOG_PATH, exist_ok=True)
     if not os.path.isdir(TEST_LOG_PATH):
         os.makedirs(TEST_LOG_PATH, exist_ok=True)
-
-    for dataset in trainset_txt.keys():
-        print("\n------------------    For ", dataset, " dataset    ------------------\n")
-        tr = trainset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
-        vd = validset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
-
-        # Best model 경로 정의
-        if PRETRAINED:
-            MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
-        else:
-            MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
-        BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
-        print(BEST_MODEL_PATH)
         
-        # 모델 초기화 
-        model = copy.deepcopy(init_model)
-        model = model.cuda()
-        
-        # Optimizer 및 loss 정의
-        if OPTIM == 'Adam':
-            optimizer = torch.optim.Adam(model.parameters(), lr = LEARNING_RATE)
-        elif OPTIM == 'SGD':
-            optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE, momentum=0.9, weight_decay=0.0005)
-        criterion = nn.CrossEntropyLoss()
+    if not TEST_MODE:
+        for dataset in trainset_txt.keys():
+            print("\n------------------    For ", dataset, " dataset    ------------------\n")
+            tr = trainset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
+            vd = validset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
 
-        # 사전에 훈련된 모델이 존재하면 테스트만 진행하고 다음으로 넘어감 
-        if os.path.exists(BEST_MODEL_PATH):
-            print("Trained model already exists!\n")
-            model.load_state_dict(torch.load(BEST_MODEL_PATH))
-            test_loss, test_accuracy = evaluate(model, test_loader[dataset])
-            msg = 'Test loss: {}, Test acc: {}\n'.format(test_loss, test_accuracy)
-            print(msg)
-            continue
+            # Best model 경로 정의
+            if PRETRAINED:
+                MODEL_NAME = "{}_Pretrained_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
+            else:
+                MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
+            BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
+            print(BEST_MODEL_PATH)
 
-        train_log = open(TRAIN_LOG_PATH+"/train_log_" + MODEL_NAME + ".txt", 'w')
+            # 모델 초기화 
+            model = copy.deepcopy(init_model)
+            model = model.cuda()
 
-        best_acc = 0
-        best_ep = 0
-        
-        for Epoch in range(1, EPOCHS + 1):
-            train(model, train_loader[dataset], optimizer, log_interval = 200)
-            valid_loss, valid_accuracy = evaluate(model, valid_loader[dataset])
-            if valid_accuracy > best_acc:
-                best_acc = valid_accuracy
-                best_model = copy.deepcopy(model)
-                best_ep = Epoch
-                msg = "Best Model!\n"
+            # Optimizer 및 loss 정의
+            if OPTIM == 'Adam':
+                optimizer = torch.optim.Adam(model.parameters(), lr = LEARNING_RATE)
+            elif OPTIM == 'SGD':
+                optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE, momentum=0.9, weight_decay=0.0005)
+            criterion = nn.CrossEntropyLoss()
+
+            # 사전에 훈련된 모델이 존재하면 테스트만 진행하고 다음으로 넘어감 
+            if os.path.exists(BEST_MODEL_PATH):
+                print("Trained model already exists!\n")
+                model.load_state_dict(torch.load(BEST_MODEL_PATH))
+                test_loss, test_accuracy = evaluate(model, test_loader[dataset])
+                msg = 'Test loss: {}, Test acc: {}\n'.format(test_loss, test_accuracy)
+                print(msg)
+                continue
+
+            train_log = open(TRAIN_LOG_PATH+"/train_log_" + MODEL_NAME + ".txt", 'w')
+
+            best_acc = 0
+            best_ep = 0
+
+            for Epoch in range(1, EPOCHS + 1):
+                train(model, train_loader[dataset], optimizer, log_interval = 200)
+                valid_loss, valid_accuracy = evaluate(model, valid_loader[dataset])
+                if valid_accuracy > best_acc:
+                    best_acc = valid_accuracy
+                    best_model = copy.deepcopy(model)
+                    best_ep = Epoch
+                    msg = "Best Model!\n"
+                    print(msg)
+                    train_log.writelines(msg)
+                msg = "\nEPOCH: {}], \tValidation Loss: {:.4f}, \tValidation Accuracy: {:.2f} %\n".format(Epoch, valid_loss, valid_accuracy)
                 print(msg)
                 train_log.writelines(msg)
-            msg = "\nEPOCH: {}], \tValidation Loss: {:.4f}, \tValidation Accuracy: {:.2f} %\n".format(Epoch, valid_loss, valid_accuracy)
+
+            torch.save(best_model.state_dict(), BEST_MODEL_PATH)
+            msg = "\n------------------    Best Model at Epoch {} Saved    ------------------\n".format(best_ep)
             print(msg)
             train_log.writelines(msg)
 
-        torch.save(best_model.state_dict(), BEST_MODEL_PATH)
-        msg = "\n------------------    Best Model at Epoch {} Saved    ------------------\n".format(best_ep)
-        print(msg)
-        train_log.writelines(msg)
+            test_loss, test_accuracy = evaluate(model, test_loader[dataset])
+            msg = '\nTest loss: {}, Test acc: {}\n'.format(test_loss, test_accuracy)
+            print(msg)
+            train_log.writelines(msg)
 
-        test_loss, test_accuracy = evaluate(model, test_loader[dataset])
-        msg = '\nTest loss: {}, Test acc: {}\n'.format(test_loss, test_accuracy)
-        print(msg)
-        train_log.writelines(msg)
-
-        train_log.close()
+            train_log.close()
 
     ''' 훈련된 모델 확인하기 '''
     if PRETRAINED:
@@ -291,14 +338,14 @@ if __name__ == '__main__':
         TEST_NAME = "{}_BS{}_{}_LR{}_EP{}_{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, datetime.now())
     test_log = open(TEST_LOG_PATH+"/test_log_" + TEST_NAME + ".txt", 'w')
     test_log.writelines("Dataset List\n")
-    for dataset in trainset_txt.keys():
-        test_log.writelines("- {} train: {}, test: {} \n".format(dataset, trainset_txt[dataset], testset_txt[dataset]))
+    for exp in trainset_txt.keys():
+        test_log.writelines("- {} train: {}, valid: {}, test: {} \n".format(exp, trainset_txt[exp], validset_txt[exp], testset_txt[exp]))
 
     msg = "\n*--------------------- Test Result ---------------------*\n"
     print(msg)
     test_log.writelines(msg)
 
-    total_loss = 0
+    total_accuracy, total_loss = 0, 0
     for dataset in trainset_txt.keys():
         tr = trainset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
         vd = validset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
@@ -326,14 +373,19 @@ if __name__ == '__main__':
         trained_model.load_state_dict(torch.load(BEST_MODEL_PATH))
         criterion = nn.CrossEntropyLoss()
         
-        test_loss, test_accuracy = evaluate(trained_model, test_loader[dataset])
-        total_loss += test_accuracy
-        msg = '{} - loss: {}, acc: {}\n'.format(dataset, test_loss, test_accuracy)
+        test_loss, test_accuracy, avg_time_per_image, incorrect_list = evaluate(trained_model, test_loader[dataset], test=True)
+        total_accuracy += test_accuracy
+        total_loss += test_loss
+        msg = '{} - loss: {}, acc: {}, avg_time_per_image: {}\n'.format(dataset, test_loss, test_accuracy, avg_time_per_image)
+        print(msg)
+        test_log.writelines(msg)
+        msg = "incorrect list\n{}\n".format(incorrect_list)
         print(msg)
         test_log.writelines(msg)
         
+    total_accuracy /= len(trainset_txt)
     total_loss /= len(trainset_txt)
-    msg = "average accuracy: {}".format(total_loss)
+    msg = "average accuracy: {}, average loss: {}".format(total_accuracy, total_loss)
     print(msg)
     test_log.writelines(msg)
 
