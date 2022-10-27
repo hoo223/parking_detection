@@ -1,0 +1,14 @@
+Dataset List
+- ex1 train: ./splits/Custom_Paper/fold2345_all.txt, valid: ./splits/Custom_Paper/fold2345_all.txt, test: ./splits/Additional/additional.txt 
+- ex2 train: ./splits/Custom_Paper/fold1345_all.txt, valid: ./splits/Custom_Paper/fold1345_all.txt, test: ./splits/Additional/additional.txt 
+- ex3 train: ./splits/Custom_Paper/fold1245_all.txt, valid: ./splits/Custom_Paper/fold1245_all.txt, test: ./splits/Additional/additional.txt 
+- ex4 train: ./splits/Custom_Paper/fold1235_all.txt, valid: ./splits/Custom_Paper/fold1235_all.txt, test: ./splits/Additional/additional.txt 
+- ex5 train: ./splits/Custom_Paper/fold1234_all.txt, valid: ./splits/Custom_Paper/fold1234_all.txt, test: ./splits/Additional/additional.txt 
+
+*--------------------- Test Result ---------------------*
+ex1 - loss: 4.3855992293626966e-05, acc: 97.24754029093982, avg_time_per_image: 0.00021773997318509362
+ex2 - loss: 9.565321607049189e-05, acc: 93.84318222973381, avg_time_per_image: 0.00022394613817576127
+ex3 - loss: 5.8291140290990984e-05, acc: 95.99806844932698, avg_time_per_image: 0.00022628235818394684
+ex4 - loss: 5.409386176050425e-05, acc: 96.84915796462847, avg_time_per_image: 0.0002174829468180535
+ex5 - loss: 9.577200891544602e-05, acc: 94.28381722701756, avg_time_per_image: 0.00021843539788467262
+average accuracy: 95.64435323232934, average loss: 6.953324386621201e-05

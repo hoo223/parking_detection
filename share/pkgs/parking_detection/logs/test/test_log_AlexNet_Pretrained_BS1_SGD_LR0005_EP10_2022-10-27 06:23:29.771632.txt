@@ -1,0 +1,8 @@
+Dataset List
+- ex1 train: ./splits/Custom_Paper/fold12345_all.txt, valid: ./splits/Custom_Paper/fold12345_all.txt, test: ./splits/Additional/additional_overlap_removed.txt 
+- ex2 train: ./splits/Custom_Paper/fold12345_all.txt, valid: ./splits/Additional/additional_overlap_removed.txt, test: ./splits/Additional/additional_overlap_removed.txt 
+
+*--------------------- Test Result ---------------------*
+ex1 - loss: 7.983172872436697e-05, acc: 94.07319291862011, avg_time_per_image: 0.0002125762807055823
+ex2 - loss: 2.2074354292588823e-05, acc: 98.76845567140158, avg_time_per_image: 0.00021257920025294377
+average accuracy: 96.42082429501085, average loss: 5.09530415084779e-05

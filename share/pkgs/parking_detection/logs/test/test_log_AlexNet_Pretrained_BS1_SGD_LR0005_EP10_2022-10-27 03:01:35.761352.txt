@@ -1,0 +1,4 @@
+Dataset List
+- ex1 train: ./splits/Additional/total_20220724_20220818_update_all.txt, test: ./splits/Additional/total_20220724_20220818_update_all.txt 
+
+*--------------------- Test Result ---------------------*
