@@ -82,42 +82,7 @@ class Utils:
         return dst
 
     def extract_bb_points(self, points, width, height):
-        if len(points.split(';')) == 5: # 라벨링된 point가 5개인 경우
-            ps = [(float(points.split(';')[0].split(',')[0]), float(points.split(';')[0].split(',')[1])),
-                 (float(points.split(';')[1].split(',')[0]), float(points.split(';')[1].split(',')[1])),
-                 (float(points.split(';')[2].split(',')[0]), float(points.split(';')[2].split(',')[1])),
-                 (float(points.split(';')[3].split(',')[0]), float(points.split(';')[3].split(',')[1])),
-                 (float(points.split(';')[4].split(',')[0]), float(points.split(';')[4].split(',')[1]))]
-            left, right, up, down = [], [], [], []
-            for i, p in enumerate(ps):
-                #print(i,p)
-                if p[0] == 0: # 점이 이미지 왼쪽 끝에 존재
-                    left.append(i)
-                if p[0] == float(width): # 점이 이미지 오른쪽 끝에 존재
-                    right.append(i)
-                if p[1] == 0: # 점이 이미지 위쪽 끝에 존재
-                    up.append(i)
-                if p[1] == float(height): # 점이 이미지 아래쪽 끝에 존재
-                    down.append(i)
-            #print(len(left), len(right), len(up), len(down))
-
-            if len(left) == 2: # 이미지 왼쪽 끝에 점이 두 개 있는 경우 하나 제거
-                del ps[left[0]]
-            elif len(right) == 2: # 이미지 오른쪽 끝에 점이 두 개 있는 경우 하나 제거
-                del ps[right[0]]
-            elif len(up) == 2: # 이미지 위쪽 끝에 점이 두 개 있는 경우 하나 제거
-                del ps[up[0]]
-            elif len(down) == 2: # 이미지 아래쪽 끝에 점이 두 개 있는 경우 하나 제거
-                del ps[down[0]]
-
-            # 4 꼭지점 분류 
-            sorted_by_y= self.sort_ndarray_by_col(np.array(ps), 1)
-            top_two = sorted_by_y[0:2]
-            topLeft, topRight = self.sort_ndarray_by_col(top_two, 0)
-            bottom_two = sorted_by_y[2:4]
-            bottomLeft, bottomRight = list(self.sort_ndarray_by_col(bottom_two, 0))
-
-        elif len(points.split(';')) == 4: # 라벨링된 point가 4개인 경우 = polygon 라벨링 (없음)
+        if len(points.split(';')) == 4: # 라벨링된 point가 4개인 경우 = polygon 라벨링 (없음)
             ps = [(float(points.split(';')[0].split(',')[0]), float(points.split(';')[0].split(',')[1])),
                  (float(points.split(';')[1].split(',')[0]), float(points.split(';')[1].split(',')[1])),
                  (float(points.split(';')[2].split(',')[0]), float(points.split(';')[2].split(',')[1])),
