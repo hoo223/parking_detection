@@ -1,0 +1,7 @@
+Dataset List
+- ex1
+	 train: ./splits/Custom_Paper/fold12345_all.txt
+	 valid: ./splits/Additional/total_20221028+empty_all.txt
+	 test: ./splits/Additional/total_20221028+empty_all.txt 
+
+*--------------------- Test Result ---------------------*

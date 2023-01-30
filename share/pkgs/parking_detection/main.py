@@ -33,7 +33,7 @@ class Data:
             self.img_list = [os.path.join(img_path, i.split()[0]) for i in lines]
             self.label_list = [i.split()[1] for i in lines]
             self.transforms = transforms
-    
+
     def __getitem__(self, index):
         try:
             img_path = self.img_list[index]
@@ -43,7 +43,7 @@ class Data:
         except:
             return None
         return img, label
-    
+
     def __len__(self):
         return len(self.label_list)
 
@@ -60,7 +60,7 @@ def train(model, train_loader, optimizer, log_interval):
         loss = criterion(output, label.long()) # loss 계산
         loss.backward() # Backpropagation을 통해 계산된 gradient 값을 각 파라미터에 할당
         optimizer.step() # 파라미터 업데이트
-        
+
         if batch_idx % log_interval == 0:
             print("Train Epoch: {} [{}/{}({:.0f}%)]\tTrain Loss: {:.6f} ({})".format(
                   Epoch, batch_idx * len(image),
@@ -78,7 +78,9 @@ def evaluate(model, test_loader, test=False):
     batch_cnt = 0
     image_cnt = 0
     incorrect_list = []
-    
+    pred_list = []
+    incorrect_pred_list = []
+
     with torch.no_grad(): # 평가하는 단계에서 gradient를 통해 파라미터 값이 업데이트되는 현상을 방지
         for image, label in test_loader:
             batch_cnt += 1
@@ -95,16 +97,20 @@ def evaluate(model, test_loader, test=False):
             time_per_batch = time.time() - start
             #print("time per {} image :{}".format(len(label), time_per_batch))
             total_time += time_per_batch
-            incorrect_list += list(np.where(result.cpu().numpy()==False)[0]+1+image_cnt)
+            incorrect_list += list(np.where(result.cpu().numpy()==False)[0]+1+image_cnt) # txt 파일에서의 순서와 맞추기 위해 +1
+            pred_list += list(prediction.cpu().numpy())
             image_cnt += len(label)
-    
+
+    for idx in incorrect_list:
+        incorrect_pred_list.append(int(pred_list[idx-1]))
     avg_time_per_image = total_time/float(image_cnt)
     test_loss /= len(test_loader.dataset) # 평균 loss 계산
     test_accuracy = 100. * correct / len(test_loader.dataset) # 정확도 계산
     if test:
-        return test_loss, test_accuracy, avg_time_per_image, incorrect_list
+        return test_loss, test_accuracy, avg_time_per_image, incorrect_list, incorrect_pred_list
     else:
         return test_loss, test_accuracy
+
 
 if __name__ == '__main__':
     ''' 딥러닝 모델을 설계할 때 활요하는 장비 확인 '''
@@ -112,7 +118,7 @@ if __name__ == '__main__':
         DEVICE = torch.device('cuda')
     else:
         DEVICE = torch.device('cpu')
-        
+
     print('Using PyTorch version:', torch.__version__, ' Device:', DEVICE)
 
     # Hyperparameter 설정
@@ -142,26 +148,128 @@ if __name__ == '__main__':
         ])
     }
 
-    img_path = '/root/share/datasets/Bluecom'
-    # trainset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
-    #                 'fold2': './splits/Custom_Paper/fold1345_all.txt',
-    #                 'fold3': './splits/Custom_Paper/fold1245_all.txt',
-    #                 'fold4': './splits/Custom_Paper/fold1235_all.txt',
-    #                 'fold5': './splits/Custom_Paper/fold1234_all.txt'
+    img_path = '/root/share/datasets/Bluecom/ICNGC_data'
+    trainset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
+                    'fold2': './splits/Custom_Paper/fold1345_all.txt',
+                    'fold3': './splits/Custom_Paper/fold1245_all.txt',
+                    'fold4': './splits/Custom_Paper/fold1235_all.txt',
+                    'fold5': './splits/Custom_Paper/fold1234_all.txt'
+                }
+    validset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
+                'fold2': './splits/Custom_Paper/fold1345_all.txt',
+                'fold3': './splits/Custom_Paper/fold1245_all.txt',
+                'fold4': './splits/Custom_Paper/fold1235_all.txt',
+                'fold5': './splits/Custom_Paper/fold1234_all.txt'
+            }
+    testset_txt = {'fold1': './splits/Custom_Paper/fold1_all.txt',
+                'fold2': './splits/Custom_Paper/fold2_all.txt',
+                'fold3': './splits/Custom_Paper/fold3_all.txt',
+                'fold4': './splits/Custom_Paper/fold4_all.txt',
+                'fold5': './splits/Custom_Paper/fold5_all.txt',
+                }
+    
+    # img_path = '/root/share/datasets/Bluecom/ICNGC_data'
+    # trainset_txt = {'ex1' : './splits/Custom_Paper/fold2345_all.txt',
+    #                 'ex2' : './splits/Custom_Paper/fold2345_all.txt',
+    #                 'ex3' : './splits/Custom_Paper/fold2345_all.txt',
+    #                 'ex4' : './splits/Custom_Paper/fold1345_all.txt',
+    #                 'ex5' : './splits/Custom_Paper/fold1345_all.txt',
+    #                 'ex6' : './splits/Custom_Paper/fold1345_all.txt',
+    #                 'ex7' : './splits/Custom_Paper/fold1245_all.txt',
+    #                 'ex8' : './splits/Custom_Paper/fold1245_all.txt',
+    #                 'ex9' : './splits/Custom_Paper/fold1245_all.txt',
+    #                 'ex10': './splits/Custom_Paper/fold1235_all.txt',
+    #                 'ex11': './splits/Custom_Paper/fold1235_all.txt',
+    #                 'ex12': './splits/Custom_Paper/fold1235_all.txt',
+    #                 'ex13': './splits/Custom_Paper/fold1234_all.txt',
+    #                 'ex14': './splits/Custom_Paper/fold1234_all.txt',
+    #                 'ex15': './splits/Custom_Paper/fold1234_all.txt'
     #             }
-    # validset_txt = {'fold1': './splits/Custom_Paper/fold2345_all.txt',
-    #             'fold2': './splits/Custom_Paper/fold1345_all.txt',
-    #             'fold3': './splits/Custom_Paper/fold1245_all.txt',
-    #             'fold4': './splits/Custom_Paper/fold1235_all.txt',
-    #             'fold5': './splits/Custom_Paper/fold1234_all.txt'
-    #         }
-    # testset_txt = {'fold1': './splits/Custom_Paper/fold1_all.txt',
-    #             'fold2': './splits/Custom_Paper/fold2_all.txt',
-    #             'fold3': './splits/Custom_Paper/fold3_all.txt',
-    #             'fold4': './splits/Custom_Paper/fold4_all.txt',
-    #             'fold5': './splits/Custom_Paper/fold5_all.txt',
+    # validset_txt = {'ex1' : './splits/Custom_Paper/fold1_all.txt',
+    #                 'ex2' : './splits/Custom_Paper/fold1_all.txt',
+    #                 'ex3' : './splits/Custom_Paper/fold1_all.txt',
+    #                 'ex4' : './splits/Custom_Paper/fold2_all.txt',
+    #                 'ex5' : './splits/Custom_Paper/fold2_all.txt',
+    #                 'ex6' : './splits/Custom_Paper/fold2_all.txt',
+    #                 'ex7' : './splits/Custom_Paper/fold3_all.txt',
+    #                 'ex8' : './splits/Custom_Paper/fold3_all.txt',
+    #                 'ex9' : './splits/Custom_Paper/fold3_all.txt',
+    #                 'ex10': './splits/Custom_Paper/fold4_all.txt',
+    #                 'ex11': './splits/Custom_Paper/fold4_all.txt',
+    #                 'ex12': './splits/Custom_Paper/fold4_all.txt',
+    #                 'ex13': './splits/Custom_Paper/fold5_all.txt',
+    #                 'ex14': './splits/Custom_Paper/fold5_all.txt',
+    #                 'ex15': './splits/Custom_Paper/fold5_all.txt'
     #             }
-
+    # testset_txt =  {'ex1' : './splits/Custom_Paper/fold1_all.txt',
+    #                 'ex2' : './splits/Custom_Paper/fold1_empty.txt',
+    #                 'ex3' : './splits/Custom_Paper/fold1_occupied.txt',
+    #                 'ex4' : './splits/Custom_Paper/fold2_all.txt',
+    #                 'ex5' : './splits/Custom_Paper/fold2_empty.txt',
+    #                 'ex6' : './splits/Custom_Paper/fold2_occupied.txt',
+    #                 'ex7' : './splits/Custom_Paper/fold3_all.txt',
+    #                 'ex8' : './splits/Custom_Paper/fold3_empty.txt',
+    #                 'ex9' : './splits/Custom_Paper/fold3_occupied.txt',
+    #                 'ex10': './splits/Custom_Paper/fold4_all.txt',
+    #                 'ex11': './splits/Custom_Paper/fold4_empty.txt',
+    #                 'ex12': './splits/Custom_Paper/fold4_occupied.txt',
+    #                 'ex13': './splits/Custom_Paper/fold5_all.txt',
+    #                 'ex14': './splits/Custom_Paper/fold5_empty.txt',
+    #                 'ex15': './splits/Custom_Paper/fold5_occupied.txt'
+    #             }
+    
+    # img_path = '/root/share/datasets/Bluecom/ICNGC_data'
+    # trainset_txt = {'ex1' : './splits/Custom_Paper/fold2345_all_train.txt',
+    #                 'ex2' : './splits/Custom_Paper/fold2345_all_train.txt',
+    #                 'ex3' : './splits/Custom_Paper/fold2345_all_train.txt',
+    #                 'ex4' : './splits/Custom_Paper/fold1345_all_train.txt',
+    #                 'ex5' : './splits/Custom_Paper/fold1345_all_train.txt',
+    #                 'ex6' : './splits/Custom_Paper/fold1345_all_train.txt',
+    #                 'ex7' : './splits/Custom_Paper/fold1245_all_train.txt',
+    #                 'ex8' : './splits/Custom_Paper/fold1245_all_train.txt',
+    #                 'ex9' : './splits/Custom_Paper/fold1245_all_train.txt',
+    #                 'ex10': './splits/Custom_Paper/fold1235_all_train.txt',
+    #                 'ex11': './splits/Custom_Paper/fold1235_all_train.txt',
+    #                 'ex12': './splits/Custom_Paper/fold1235_all_train.txt',
+    #                 'ex13': './splits/Custom_Paper/fold1234_all_train.txt',
+    #                 'ex14': './splits/Custom_Paper/fold1234_all_train.txt',
+    #                 'ex15': './splits/Custom_Paper/fold1234_all_train.txt'
+    #             }
+    # validset_txt = {'ex1' : './splits/Custom_Paper/fold2345_all_valid.txt',
+    #                 'ex2' : './splits/Custom_Paper/fold2345_all_valid.txt',
+    #                 'ex3' : './splits/Custom_Paper/fold2345_all_valid.txt',
+    #                 'ex4' : './splits/Custom_Paper/fold1345_all_valid.txt',
+    #                 'ex5' : './splits/Custom_Paper/fold1345_all_valid.txt',
+    #                 'ex6' : './splits/Custom_Paper/fold1345_all_valid.txt',
+    #                 'ex7' : './splits/Custom_Paper/fold1245_all_valid.txt',
+    #                 'ex8' : './splits/Custom_Paper/fold1245_all_valid.txt',
+    #                 'ex9' : './splits/Custom_Paper/fold1245_all_valid.txt',
+    #                 'ex10': './splits/Custom_Paper/fold1235_all_valid.txt',
+    #                 'ex11': './splits/Custom_Paper/fold1235_all_valid.txt',
+    #                 'ex12': './splits/Custom_Paper/fold1235_all_valid.txt',
+    #                 'ex13': './splits/Custom_Paper/fold1234_all_valid.txt',
+    #                 'ex14': './splits/Custom_Paper/fold1234_all_valid.txt',
+    #                 'ex15': './splits/Custom_Paper/fold1234_all_valid.txt'
+    #             }
+    # testset_txt =  {'ex1' : './splits/Custom_Paper/fold1_all.txt',
+    #                 'ex2' : './splits/Custom_Paper/fold1_empty.txt',
+    #                 'ex3' : './splits/Custom_Paper/fold1_occupied.txt',
+    #                 'ex4' : './splits/Custom_Paper/fold2_all.txt',
+    #                 'ex5' : './splits/Custom_Paper/fold2_empty.txt',
+    #                 'ex6' : './splits/Custom_Paper/fold2_occupied.txt',
+    #                 'ex7' : './splits/Custom_Paper/fold3_all.txt',
+    #                 'ex8' : './splits/Custom_Paper/fold3_empty.txt',
+    #                 'ex9' : './splits/Custom_Paper/fold3_occupied.txt',
+    #                 'ex10': './splits/Custom_Paper/fold4_all.txt',
+    #                 'ex11': './splits/Custom_Paper/fold4_empty.txt',
+    #                 'ex12': './splits/Custom_Paper/fold4_occupied.txt',
+    #                 'ex13': './splits/Custom_Paper/fold5_all.txt',
+    #                 'ex14': './splits/Custom_Paper/fold5_empty.txt',
+    #                 'ex15': './splits/Custom_Paper/fold5_occupied.txt'
+    #             }
+    
+    
+    
     # trainset_txt = {'ex1': './splits/Custom_Paper/fold2345_all.txt',
     #                 'ex2': './splits/Custom_Paper/fold1345_all.txt',
     #                 'ex3': './splits/Custom_Paper/fold1245_all.txt',
@@ -179,14 +287,22 @@ if __name__ == '__main__':
     #                 'ex3': './splits/Additional/additional.txt',
     #                 'ex4': './splits/Additional/additional.txt',
     #                 'ex5': './splits/Additional/additional.txt',
-    #             }  
+    #             }
 
-    trainset_txt = {#'ex1':'./splits/Custom_Paper/fold12345_all.txt',
-                    'ex2':'./splits/Custom_Paper/fold12345_all.txt'}
-    validset_txt = {#'ex1':'./splits/Custom_Paper/fold12345_all.txt',
-                    'ex2':'./splits/Additional/additional_overlap_removed.txt'}
-    testset_txt = {#'ex1':'./splits/Additional/additional_overlap_removed.txt',
-                   'ex2':'./splits/Additional/additional_overlap_removed.txt'}
+    # trainset_txt = {'ex1':'./splits/Custom_Paper/fold12345_all.txt',
+    #                 'ex2':'./splits/Custom_Paper/fold12345_all.txt'}
+    # validset_txt = {'ex1':'./splits/Custom_Paper/fold12345_all.txt',
+    #                 'ex2':'./splits/Additional/additional_overlap_removed.txt'}
+    # testset_txt = {'ex1':'./splits/Additional/additional_overlap_removed.txt',
+    #                'ex2':'./splits/Additional/additional_overlap_removed.txt'}
+
+    # trainset_txt = {'ex1': './splits/Custom_Paper/fold12345_all.txt'}
+    # validset_txt = {'ex1': './splits/Additional/total_20221028+empty_generated_overlap_removed_valid.txt'}
+    # testset_txt =  {'ex1': './splits/Additional/total_20221028+empty_generated_overlap_removed_test.txt'}
+    
+    # trainset_txt = {'ex1': './splits/Custom_Paper/fold12345_all.txt'}
+    # validset_txt = {'ex1': './splits/Additional/total_20221028+empty_valid.txt'}
+    # testset_txt =  {'ex1': './splits/Additional/total_20221028+empty_test.txt'}
 
     train_loader = {}
     valid_loader = {}
@@ -206,10 +322,10 @@ if __name__ == '__main__':
         test_loader[key] = DataLoader(test_dataset, batch_size=2048, shuffle=False, drop_last=drop_last)
 
     ''' 데이터 확인하기 (1) '''
-    for (X_train, y_train) in test_loader['ex2']:
-        print('X_train:', X_train.size(), 'type:', X_train.type())
-        print('y_train:', len(y_train), 'type:', type(y_train))
-        break
+    # for (X_train, y_train) in test_loader['fold1']:
+    #     print('X_train:', X_train.size(), 'type:', X_train.type())
+    #     print('y_train:', len(y_train), 'type:', type(y_train))
+    #     break
 
     # ''' 데이터 확인하기 (2) '''
     # pltsize = 1
@@ -245,7 +361,7 @@ if __name__ == '__main__':
         model = rexnetv1.ReXNetV1(width_mult=1.0).cuda()
         if PRETRAINED:
             model.load_state_dict(torch.load('./rexnetv1_1.0.pth'))
-            
+
     init_model = copy.deepcopy(model)
     print(init_model)
 
@@ -265,9 +381,9 @@ if __name__ == '__main__':
         os.makedirs(TRAIN_LOG_PATH, exist_ok=True)
     if not os.path.isdir(TEST_LOG_PATH):
         os.makedirs(TEST_LOG_PATH, exist_ok=True)
-        
-    if not TEST_MODE:
-        for dataset in trainset_txt.keys():
+
+    if not TEST_MODE: # 훈련
+        for dataset in trainset_txt.keys(): # 각 실험마다
             print("\n------------------    For ", dataset, " dataset    ------------------\n")
             tr = trainset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
             vd = validset_txt[dataset].split('splits/')[1].split('.')[0].replace('/', '-')
@@ -280,7 +396,7 @@ if __name__ == '__main__':
             BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
             print(BEST_MODEL_PATH)
 
-            # 모델 초기화 
+            # 모델 초기화
             model = copy.deepcopy(init_model)
             model = model.cuda()
 
@@ -291,7 +407,7 @@ if __name__ == '__main__':
                 optimizer = torch.optim.SGD(model.parameters(), lr = LEARNING_RATE, momentum=0.9, weight_decay=0.0005)
             criterion = nn.CrossEntropyLoss()
 
-            # 사전에 훈련된 모델이 존재하면 테스트만 진행하고 다음으로 넘어감 
+            # 사전에 훈련된 모델이 존재하면 테스트만 진행하고 다음으로 넘어감
             if os.path.exists(BEST_MODEL_PATH):
                 print("Trained model already exists!\n")
                 model.load_state_dict(torch.load(BEST_MODEL_PATH))
@@ -339,7 +455,7 @@ if __name__ == '__main__':
     test_log = open(TEST_LOG_PATH+"/test_log_" + TEST_NAME + ".txt", 'w')
     test_log.writelines("Dataset List\n")
     for exp in trainset_txt.keys():
-        test_log.writelines("- {} train: {}, valid: {}, test: {} \n".format(exp, trainset_txt[exp], validset_txt[exp], testset_txt[exp]))
+        test_log.writelines("- {}\n\t train: {}\n\t valid: {}\n\t test: {} \n".format(exp, trainset_txt[exp], validset_txt[exp], testset_txt[exp]))
 
     msg = "\n*--------------------- Test Result ---------------------*\n"
     print(msg)
@@ -354,7 +470,7 @@ if __name__ == '__main__':
         else:
             MODEL_NAME = "{}_BS{}_{}_LR{}_EP{}_TR-{}_VD-{}".format(MODEL, BATCH_SIZE, OPTIM, str(LEARNING_RATE).split('.')[1], EPOCHS, tr, vd)
         BEST_MODEL_PATH = SAVE_PATH + "/" + MODEL_NAME + ".pt"
-        
+
         if MODEL == 'AlexNet':
             trained_model = models.alexnet(pretrained=False)
             trained_model._modules['classifier']._modules['6'] = nn.Linear(4096, NUM_CLASS, bias=True)
@@ -372,17 +488,17 @@ if __name__ == '__main__':
         trained_model = trained_model.cuda()
         trained_model.load_state_dict(torch.load(BEST_MODEL_PATH))
         criterion = nn.CrossEntropyLoss()
-        
-        test_loss, test_accuracy, avg_time_per_image, incorrect_list = evaluate(trained_model, test_loader[dataset], test=True)
+
+        test_loss, test_accuracy, avg_time_per_image, incorrect_list, incorrect_pred_list = evaluate(trained_model, test_loader[dataset], test=True)
         total_accuracy += test_accuracy
         total_loss += test_loss
         msg = '{} - loss: {}, acc: {}, avg_time_per_image: {}\n'.format(dataset, test_loss, test_accuracy, avg_time_per_image)
         print(msg)
         test_log.writelines(msg)
-        msg = "incorrect list\n{}\n".format(incorrect_list)
+        msg = "incorrect list\n{}\nincorrect answers\n{}\n\n".format(incorrect_list, incorrect_pred_list)
         print(msg)
         test_log.writelines(msg)
-        
+
     total_accuracy /= len(trainset_txt)
     total_loss /= len(trainset_txt)
     msg = "average accuracy: {}, average loss: {}".format(total_accuracy, total_loss)

@@ -1,0 +1,154 @@
+Dataset List
+- ex1
+	 train: ./splits/Custom_Paper/fold2345_all_train.txt
+	 valid: ./splits/Custom_Paper/fold2345_all_valid.txt
+	 test: ./splits/Custom_Paper/fold1_all.txt 
+- ex2
+	 train: ./splits/Custom_Paper/fold2345_all_train.txt
+	 valid: ./splits/Custom_Paper/fold2345_all_valid.txt
+	 test: ./splits/Custom_Paper/fold1_empty.txt 
+- ex3
+	 train: ./splits/Custom_Paper/fold2345_all_train.txt
+	 valid: ./splits/Custom_Paper/fold2345_all_valid.txt
+	 test: ./splits/Custom_Paper/fold1_occupied.txt 
+- ex4
+	 train: ./splits/Custom_Paper/fold1345_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1345_all_valid.txt
+	 test: ./splits/Custom_Paper/fold2_all.txt 
+- ex5
+	 train: ./splits/Custom_Paper/fold1345_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1345_all_valid.txt
+	 test: ./splits/Custom_Paper/fold2_empty.txt 
+- ex6
+	 train: ./splits/Custom_Paper/fold1345_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1345_all_valid.txt
+	 test: ./splits/Custom_Paper/fold2_occupied.txt 
+- ex7
+	 train: ./splits/Custom_Paper/fold1245_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1245_all_valid.txt
+	 test: ./splits/Custom_Paper/fold3_all.txt 
+- ex8
+	 train: ./splits/Custom_Paper/fold1245_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1245_all_valid.txt
+	 test: ./splits/Custom_Paper/fold3_empty.txt 
+- ex9
+	 train: ./splits/Custom_Paper/fold1245_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1245_all_valid.txt
+	 test: ./splits/Custom_Paper/fold3_occupied.txt 
+- ex10
+	 train: ./splits/Custom_Paper/fold1235_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1235_all_valid.txt
+	 test: ./splits/Custom_Paper/fold4_all.txt 
+- ex11
+	 train: ./splits/Custom_Paper/fold1235_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1235_all_valid.txt
+	 test: ./splits/Custom_Paper/fold4_empty.txt 
+- ex12
+	 train: ./splits/Custom_Paper/fold1235_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1235_all_valid.txt
+	 test: ./splits/Custom_Paper/fold4_occupied.txt 
+- ex13
+	 train: ./splits/Custom_Paper/fold1234_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1234_all_valid.txt
+	 test: ./splits/Custom_Paper/fold5_all.txt 
+- ex14
+	 train: ./splits/Custom_Paper/fold1234_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1234_all_valid.txt
+	 test: ./splits/Custom_Paper/fold5_empty.txt 
+- ex15
+	 train: ./splits/Custom_Paper/fold1234_all_train.txt
+	 valid: ./splits/Custom_Paper/fold1234_all_valid.txt
+	 test: ./splits/Custom_Paper/fold5_occupied.txt 
+
+*--------------------- Test Result ---------------------*
+ex1 - loss: 0.0002774648336381871, acc: 98.068669527897, avg_time_per_image: 0.00020171081559340842
+incorrect list
+[129, 130, 131, 132, 133, 178, 194, 195, 196]
+incorrect answers
+[0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+ex2 - loss: 5.7234993385793886e-05, acc: 100.0, avg_time_per_image: 0.00021206699641404954
+incorrect list
+[]
+incorrect answers
+[]
+
+ex3 - loss: 0.000995302510758241, acc: 96.25, avg_time_per_image: 0.00021182199319203694
+incorrect list
+[2, 5, 6, 7, 203, 204, 205, 206, 207]
+incorrect answers
+[0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+ex4 - loss: 7.236789163708945e-05, acc: 98.92008639308855, avg_time_per_image: 0.00020765588813930042
+incorrect list
+[25, 49, 63, 356, 414]
+incorrect answers
+[0, 0, 0, 1, 0]
+
+ex5 - loss: 0.00016384072806857047, acc: 99.54128440366972, avg_time_per_image: 0.00021516729932312572
+incorrect list
+[35]
+incorrect answers
+[1]
+
+ex6 - loss: 0.00012873059936932156, acc: 98.36734693877551, avg_time_per_image: 0.00021045840516382335
+incorrect list
+[131, 147, 157, 189]
+incorrect answers
+[0, 0, 0, 0]
+
+ex7 - loss: 5.544625142569183e-05, acc: 99.35483870967742, avg_time_per_image: 0.0002070544868387202
+incorrect list
+[129, 132, 454]
+incorrect answers
+[0, 0, 0]
+
+ex8 - loss: 6.336197680370374e-05, acc: 100.0, avg_time_per_image: 0.00020976825193925338
+incorrect list
+[]
+incorrect answers
+[]
+
+ex9 - loss: 0.00014864571240483498, acc: 98.77551020408163, avg_time_per_image: 0.00020736674873196348
+incorrect list
+[233, 243, 244]
+incorrect answers
+[0, 0, 0]
+
+ex10 - loss: 7.28530372172027e-05, acc: 99.57716701902748, avg_time_per_image: 0.00020953011059105775
+incorrect list
+[422, 468]
+incorrect answers
+[0, 0]
+
+ex11 - loss: 0.00021192998752981272, acc: 100.0, avg_time_per_image: 0.00020786832431851304
+incorrect list
+[]
+incorrect answers
+[]
+
+ex12 - loss: 0.00010599774996871534, acc: 99.27536231884058, avg_time_per_image: 0.00021020744157874066
+incorrect list
+[143, 176]
+incorrect answers
+[0, 0]
+
+ex13 - loss: 3.9348253557662005e-05, acc: 99.15966386554622, avg_time_per_image: 0.00020794858451650923
+incorrect list
+[213, 218, 219, 226]
+incorrect answers
+[1, 1, 1, 1]
+
+ex14 - loss: 0.00015899313515738438, acc: 98.24561403508773, avg_time_per_image: 0.00020725476114373458
+incorrect list
+[154, 156, 157, 160]
+incorrect answers
+[1, 1, 1, 1]
+
+ex15 - loss: 1.0574519100989545e-05, acc: 100.0, avg_time_per_image: 0.00020609651842424945
+incorrect list
+[]
+incorrect answers
+[]
+
+average accuracy: 99.03570289437945, average loss: 0.00017080614533488005

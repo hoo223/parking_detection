@@ -1,0 +1,54 @@
+Dataset List
+- fold1
+	 train: ./splits/Custom_Paper/fold2345_all.txt
+	 valid: ./splits/Custom_Paper/fold2345_all.txt
+	 test: ./splits/Custom_Paper/fold1_all.txt 
+- fold2
+	 train: ./splits/Custom_Paper/fold1345_all.txt
+	 valid: ./splits/Custom_Paper/fold1345_all.txt
+	 test: ./splits/Custom_Paper/fold2_all.txt 
+- fold3
+	 train: ./splits/Custom_Paper/fold1245_all.txt
+	 valid: ./splits/Custom_Paper/fold1245_all.txt
+	 test: ./splits/Custom_Paper/fold3_all.txt 
+- fold4
+	 train: ./splits/Custom_Paper/fold1235_all.txt
+	 valid: ./splits/Custom_Paper/fold1235_all.txt
+	 test: ./splits/Custom_Paper/fold4_all.txt 
+- fold5
+	 train: ./splits/Custom_Paper/fold1234_all.txt
+	 valid: ./splits/Custom_Paper/fold1234_all.txt
+	 test: ./splits/Custom_Paper/fold5_all.txt 
+
+*--------------------- Test Result ---------------------*
+fold1 - loss: 0.00011896415585612023, acc: 98.28326180257511, avg_time_per_image: 0.00020654774530762767
+incorrect list
+[129, 130, 131, 132, 133, 178, 194, 195]
+incorrect answers
+[0, 0, 0, 0, 0, 0, 0, 0]
+
+fold2 - loss: 0.00032921656805289743, acc: 95.24838012958963, avg_time_per_image: 0.00020563731183243623
+incorrect list
+[25, 44, 49, 56, 63, 71, 81, 85, 99, 120, 123, 126, 224, 281, 354, 356, 358, 369, 372, 383, 389, 406]
+incorrect answers
+[0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+
+fold3 - loss: 5.794692263808302e-05, acc: 99.35483870967742, avg_time_per_image: 0.00020554501523253738
+incorrect list
+[112, 144, 371]
+incorrect answers
+[1, 1, 1]
+
+fold4 - loss: 0.00011881573980252788, acc: 99.15433403805497, avg_time_per_image: 0.00020284733358951753
+incorrect list
+[42, 85, 109, 468]
+incorrect answers
+[0, 0, 0, 0]
+
+fold5 - loss: 0.0001627212593785855, acc: 97.47899159663865, avg_time_per_image: 0.00020244642466056247
+incorrect list
+[13, 174, 184, 216, 218, 241, 253, 386, 388, 450, 451, 453]
+incorrect answers
+[1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1]
+
+average accuracy: 97.90396125530717, average loss: 0.00015753292914564283
