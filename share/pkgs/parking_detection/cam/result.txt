@@ -1,12 +1,21 @@
+
 cam 60
+
+frame: ./cam/60/DJI_0013_002-018.MP4_snapshot_02.00_[2022.09.05_15.10.53].jpg
 [correct] pred: 1 gt: 1, result: True
 [correct] pred: 1 gt: 1, result: True
 [correct] pred: 1 gt: 1, result: True
+
 cam 58
+
+frame: ./cam/58/DJI_0013_002-018.MP4_snapshot_01.42_[2022.09.05_15.10.33].jpg
 [correct] pred: 1 gt: 1, result: True
 [correct] pred: 1 gt: 1, result: True
 [correct] pred: 1 gt: 1, result: True
+
 cam 57
+
+frame: ./cam/57/DJI_0013_002-018.MP4_snapshot_00.48_[2022.09.05_15.09.30].jpg
 [correct] pred: 0 gt: 0, result: True
 [correct] pred: 0 gt: 0, result: True
 [correct] pred: 0 gt: 0, result: True
