@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<annotations>
+  <cam id="60" name="DJI_0013_002-018.MP4_snapshot_02.00_[2022.09.05_15.10.53].jpg" subset="Total" task_id="139" width="3840" height="2160">
+    <polyline label="있음" occluded="0" source="manual" points="2595.41,1597.19;3294.67,1567.56" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polyline>
+    <polyline label="있음" occluded="0" source="manual" points="254.67,1730.52;1229.48,1730.52" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polyline>
+    <polyline label="있음" occluded="0" source="manual" points="1368.74,1715.70;2355.41,1706.81" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polyline>
+  </cam>
+  <cam id="58" name="DJI_0013_002-018.MP4_snapshot_01.42_[2022.09.05_15.10.33].jpg" subset="Total" task_id="139" width="3840" height="2160">
+    <polyline label="있음" occluded="0" source="manual" points="1232.44,1369.04;1866.52,1395.70" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polyline>
+    <polyline label="있음" occluded="0" source="manual" points="1899.11,1478.67;2693.19,1505.33" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polyline>
+    <polyline label="있음" occluded="0" source="manual" points="373.19,1416.44;1099.11,1422.37" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polyline>
+  </cam>
+  <cam id="57" name="DJI_0013_002-018.MP4_snapshot_00.48_[2022.09.05_15.09.30].jpg" subset="Total" task_id="139" width="3840" height="2160">
+    <polygon label="없음" occluded="0" source="manual" points="2260.59,1143.85;2708.00,1597.19;3724.30,1594.22;2734.67,1140.89" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polygon>
+    <polygon label="없음" occluded="0" source="manual" points="1795.41,1149.78;1641.33,1603.11;2681.33,1603.11;2239.85,1146.81" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polygon>
+    <polygon label="없음" occluded="0" source="manual" points="1268.00,1152.74;521.33,1609.04;1602.81,1600.15;1762.81,1149.78" z_order="0">
+      <attribute name="세부구획">일반형</attribute>
+    </polygon>
+  </cam>
+</annotations>
