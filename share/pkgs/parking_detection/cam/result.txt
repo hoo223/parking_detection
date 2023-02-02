@@ -1,0 +1,12 @@
+cam 60
+[correct] pred: 1 gt: 1, result: True
+[correct] pred: 1 gt: 1, result: True
+[correct] pred: 1 gt: 1, result: True
+cam 58
+[correct] pred: 1 gt: 1, result: True
+[correct] pred: 1 gt: 1, result: True
+[correct] pred: 1 gt: 1, result: True
+cam 57
+[correct] pred: 0 gt: 0, result: True
+[correct] pred: 0 gt: 0, result: True
+[correct] pred: 0 gt: 0, result: True
